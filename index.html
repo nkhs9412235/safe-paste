@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="color-scheme" content="light dark" />
+  <title>Safe Paste — 機密資料遮蔽工具</title>
+  <style>
+    :root{--bg:#f5f7fa;--card:#fff;--text:#1f2937;--muted:#6b7280;--border:#d1d5db;--input:#fff;--primary:#2563eb;--danger:#dc2626;--success:#15803d;--warning:#d97706;--warn-bg:#fff7ed;--warn-border:#fdba74;--warn-text:#9a3412;--safe-bg:#f0fdf4;--safe-border:#86efac;--safe-text:#166534;--code:#f3f4f6}
+    @media(prefers-color-scheme:dark){:root{--bg:#0f1115;--card:#181b21;--text:#f3f4f6;--muted:#9ca3af;--border:#374151;--input:#101318;--primary:#3b82f6;--danger:#f87171;--success:#4ade80;--warning:#f59e0b;--warn-bg:#2a1d12;--warn-border:#9a5b22;--warn-text:#fdba74;--safe-bg:#102319;--safe-border:#277447;--safe-text:#86efac;--code:#111827}}
+    *{box-sizing:border-box}html{-webkit-text-size-adjust:100%}body{margin:0;padding:max(18px,env(safe-area-inset-top)) max(14px,env(safe-area-inset-right)) max(28px,env(safe-area-inset-bottom)) max(14px,env(safe-area-inset-left));background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}.container{width:min(100%,920px);margin:0 auto}h1{margin:0 0 8px;font-size:26px}.subtitle{margin-bottom:18px;color:var(--muted);font-size:15px;line-height:1.55}.privacy{margin-bottom:18px;padding:12px 14px;border:1px solid var(--safe-border);border-radius:12px;background:var(--safe-bg);color:var(--safe-text);font-size:14px;line-height:1.5}.card{margin-bottom:16px;padding:16px;border:1px solid var(--border);border-radius:16px;background:var(--card)}.label-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:10px}label{font-size:15px;font-weight:700}.counter{color:var(--muted);font-size:13px;white-space:nowrap}textarea{display:block;width:100%;min-height:240px;padding:13px;resize:vertical;border:1px solid var(--border);border-radius:12px;outline:none;background:var(--input);color:var(--text);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:14px;line-height:1.5;-webkit-appearance:none}textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgb(37 99 235 / 14%)}.options{display:flex;flex-wrap:wrap;gap:12px 18px;margin-top:14px;font-size:14px}.option{display:flex;align-items:center;gap:8px;font-weight:500;cursor:pointer}.option input{width:19px;height:19px}.controls{display:grid;grid-template-columns:1fr;gap:10px;margin-top:14px}@media(min-width:640px){.controls{grid-template-columns:repeat(3,1fr)}}button{min-height:48px;padding:11px 14px;border:0;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;touch-action:manipulation}button:active{transform:translateY(1px)}.primary{background:var(--primary);color:#fff}.secondary{background:var(--code);color:var(--text);border:1px solid var(--border)}.danger{background:transparent;color:var(--danger);border:1px solid var(--border)}.status{min-height:24px;margin-top:12px;font-size:14px;font-weight:600;line-height:1.5}.status.success{color:var(--success)}.status.warning{color:var(--warning)}.suspicious{display:none;margin-top:16px;padding:14px;border:1px solid var(--warn-border);border-radius:12px;background:var(--warn-bg);color:var(--warn-text)}.suspicious.visible{display:block}.suspicious h3{margin:0 0 8px;font-size:15px}.suspicious p{margin:0 0 10px;font-size:13px;line-height:1.55}.item{padding:9px 10px;margin-top:8px;border:1px solid var(--warn-border);border-radius:9px;background:rgb(255 255 255 / 38%);overflow-wrap:anywhere;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:12px;line-height:1.45}.location{display:block;margin-bottom:3px;opacity:.8;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;font-size:11px}details{margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}summary{cursor:pointer;font-weight:700}.help{margin-top:10px;color:var(--muted);font-size:13px;line-height:1.65}code{padding:2px 5px;border-radius:5px;background:var(--code);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}.footer{margin-top:18px;color:var(--muted);font-size:12px;line-height:1.5;text-align:center}
+  </style>
+</head>
+<body>
+  <main class="container">
+    <h1>Safe Paste</h1>
+    <div class="subtitle">將終端機輸出、設定檔、Docker Log 或錯誤紀錄貼進來，自動把常見 Password、API Key、Token 與 Secret 替換成 <code>***</code>。</div>
+    <div class="privacy">🔒 所有分析都只在目前瀏覽器內完成。本頁不會把你貼上的內容傳送到任何伺服器，也不會寫入 localStorage、Cookie 或 IndexedDB。</div>
+
+    <section class="card">
+      <div class="label-row"><label for="inputText">原始內容</label><span id="inputCounter" class="counter">0 字元</span></div>
+      <textarea id="inputText" spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off" placeholder='例如：
+
+password="1234"
+OPENAI_API_KEY=sk-xxxxxxxx
+secret: "abcdef"
+Authorization: Bearer eyJhbGciOi...
+DATABASE_URL=postgresql://user:password@localhost/db'></textarea>
+      <div class="options">
+        <label class="option"><input id="autoProcess" type="checkbox" checked />輸入時自動掃描</label>
+        <label class="option"><input id="maskUrls" type="checkbox" checked />遮蔽 URL 帳號密碼</label>
+        <label class="option"><input id="detectSuspicious" type="checkbox" checked />偵測疑似未知金鑰</label>
+        <label class="option"><input id="aggressiveMode" type="checkbox" />強化欄位偵測</label>
+      </div>
+      <div class="controls">
+        <button id="sanitizeButton" class="primary">掃描並遮蔽</button>
+        <button id="pasteButton" class="secondary">從剪貼簿貼上</button>
+        <button id="clearButton" class="danger">清除</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="label-row"><label for="outputText">處理後內容</label><span id="matchCounter" class="counter">尚未偵測</span></div>
+      <textarea id="outputText" spellcheck="false" readonly placeholder="處理後的內容會顯示在這裡"></textarea>
+      <div class="controls">
+        <button id="copyButton" class="primary">複製安全內容</button>
+        <button id="replaceButton" class="secondary">用結果取代原文</button>
+        <button id="selectButton" class="secondary">全選結果</button>
+      </div>
+      <div id="status" class="status"></div>
+      <div id="suspiciousPanel" class="suspicious">
+        <h3>⚠️ 發現疑似未遮蔽的機密資料</h3>
+        <p>以下字串具有類似 Token / API Key 的特徵，但沒有足夠證據可以安全地自動修改。複製前請人工確認。</p>
+        <div id="suspiciousList"></div>
+      </div>
+      <details>
+        <summary>偵測規則與黃色警告是什麼？</summary>
+        <div class="help">會自動遮蔽常見的 password、API key、secret、access token、refresh token、Authorization Bearer、URL credentials、GitHub/OpenAI/GitLab/Slack/Google/AWS/Stripe 金鑰、JWT 與 Private Key。對高 entropy、看起來像未知 Token 的長字串只會顯示黃色警告，不直接修改，以降低誤判 commit hash、checksum、UUID 等正常資料的風險。</div>
+      </details>
+    </section>
+
+    <div class="footer">自動遮蔽只能降低誤貼機密資料的風險，無法保證辨識所有自訂格式。若出現黃色警告，建議複製前再確認一次。</div>
+  </main>
+
+  <script>
+  (()=>{"use strict";
+    const $=id=>document.getElementById(id);
+    const input=$("inputText"),output=$("outputText"),inputCounter=$("inputCounter"),matchCounter=$("matchCounter"),status=$("status"),panel=$("suspiciousPanel"),list=$("suspiciousList"),auto=$("autoProcess"),maskUrls=$("maskUrls"),detect=$("detectSuspicious"),aggressive=$("aggressiveMode");
+    let lastMatchCount=0,lastSuspiciousCount=0;
+    const setStatus=(m="",t="")=>{status.textContent=m;status.className="status"+(t?" "+t:"")};
+    const updateCounter=()=>inputCounter.textContent=`${input.value.length.toLocaleString()} 字元`;
+    const entropy=s=>{if(!s)return 0;const f={};for(const c of s)f[c]=(f[c]||0)+1;let e=0;for(const n of Object.values(f)){const p=n/s.length;e-=p*Math.log2(p)}return e};
+    const lineNumber=(text,index)=>text.slice(0,index).split("\n").length;
+    const suspiciousValues=text=>{if(!detect.checked)return[];const out=[],seen=new Set(),re=/[A-Za-z0-9_+\-\/.=]{24,300}/g;let m;while((m=re.exec(text))){const v=m[0];if(v.includes("***")||v.includes("://")||/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(v)||/^(?:[a-f0-9]{40}|[a-f0-9]{64}|[a-f0-9]{96}|[a-f0-9]{128})$/i.test(v)||/^[a-f0-9]{7,40}$/i.test(v))continue;let classes=0;if(/[a-z]/.test(v))classes++;if(/[A-Z]/.test(v))classes++;if(/[0-9]/.test(v))classes++;if(/[_\-+\/.=]/.test(v))classes++;const e=entropy(v);if(classes<3||e<4||(v.length<32&&e<4.3))continue;const key=`${m.index}:${v}`;if(seen.has(key))continue;seen.add(key);out.push({value:v,entropy:e,line:lineNumber(text,m.index)});if(out.length>=20)break}return out};
+    const sanitize=source=>{let text=source,matches=0;const replace=(re,fn)=>{text=text.replace(re,(...args)=>{matches++;return fn(...args)})};const keys=["password","passwd","pwd","passphrase","api[_\\s-]?key","apikey","secret","client[_\\s-]?secret","app[_\\s-]?secret","consumer[_\\s-]?secret","access[_\\s-]?token","refresh[_\\s-]?token","auth[_\\s-]?token","authentication[_\\s-]?token","id[_\\s-]?token","private[_\\s-]?key","secret[_\\s-]?key","signing[_\\s-]?key","encryption[_\\s-]?key","database[_\\s-]?password","db[_\\s-]?password","smtp[_\\s-]?password","smtp[_\\s-]?pass","redis[_\\s-]?password","jwt[_\\s-]?secret","session[_\\s-]?secret","cookie[_\\s-]?secret","webhook[_\\s-]?secret","credential","credentials"].join("|");
+      replace(new RegExp(`(\\b(?:${keys})\\b\\s*[:=]\\s*)\"([^\"\\r\\n]*)\"`,"gi"),(_,p)=>`${p}\"***\"`);
+      replace(new RegExp(`(\\b(?:${keys})\\b\\s*[:=]\\s*)'([^'\\r\\n]*)'`,"gi"),(_,p)=>`${p}'***'`);
+      replace(new RegExp(`(\\b(?:${keys})\\b\\s*[:=]\\s*)([^\\s,;\\]\\}\\r\\n]+)`,"gi"),(_,p,v)=>{if(v==="***"){matches--;return p+v}return p+"***"});
+      replace(/(authorization\s*:\s*bearer\s+)([^\s,;]+)/gi,(_,p)=>p+"***");replace(/(authorization\s*=\s*bearer\s+)([^\s,;]+)/gi,(_,p)=>p+"***");replace(/(authorization\s*:\s*basic\s+)([A-Za-z0-9+/=]+)/gi,(_,p)=>p+"***");replace(/\b(Bearer\s+)([A-Za-z0-9._~+\/=\-]{16,})\b/g,(_,p)=>p+"***");
+      if(maskUrls.checked)replace(/((?:https?|postgres(?:ql)?|mysql|mongodb(?:\+srv)?|redis|amqp):\/\/[^:\s\/@]+:)([^@\s\/]+)(@)/gi,(_,p,__ ,s)=>p+"***"+s);
+      replace(/\bsk-proj-[A-Za-z0-9_-]{16,}\b/g,()=>"***");replace(/\bsk-[A-Za-z0-9_-]{16,}\b/g,()=>"***");replace(/\b(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{20,}\b/g,()=>"***");replace(/\bgithub_pat_[A-Za-z0-9_]{20,}\b/g,()=>"***");replace(/\bglpat-[A-Za-z0-9_-]{15,}\b/g,()=>"***");replace(/\bxox[baprs]-[A-Za-z0-9-]{10,}\b/g,()=>"***");replace(/\b(?:AKIA|ASIA)[A-Z0-9]{16}\b/g,()=>"***");replace(/\bAIza[0-9A-Za-z_-]{30,}\b/g,()=>"***");replace(/\b(?:sk|rk)_(?:live|test)_[A-Za-z0-9]{16,}\b/g,()=>"***");replace(/\beyJ[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\b/g,()=>"***");replace(/-----BEGIN (?:RSA |EC |OPENSSH )?PRIVATE KEY-----[\s\S]*?-----END (?:RSA |EC |OPENSSH )?PRIVATE KEY-----/g,()=>"-----BEGIN PRIVATE KEY-----\n***\n-----END PRIVATE KEY-----");
+      if(aggressive.checked){const a=["[a-z0-9_-]*token[a-z0-9_-]*","[a-z0-9_-]*secret[a-z0-9_-]*","[a-z0-9_-]*password[a-z0-9_-]*","[a-z0-9_-]*credential[a-z0-9_-]*","[a-z0-9_-]*private[_-]?key[a-z0-9_-]*"].join("|");replace(new RegExp(`(\\b(?:${a})\\b\\s*[:=]\\s*)\"([^\"\\r\\n]{3,})\"`,"gi"),(_,p)=>`${p}\"***\"`);replace(new RegExp(`(\\b(?:${a})\\b\\s*[:=]\\s*)'([^'\\r\\n]{3,})'`,"gi"),(_,p)=>`${p}'***'`);replace(new RegExp(`(\\b(?:${a})\\b\\s*[:=]\\s*)([^\\s,;\\]\\}\\r\\n]{4,})`,"gi"),(_,p)=>p+"***")}
+      return{text,matches,suspicious:suspiciousValues(text)};
+    };
+    const renderSuspicious=items=>{list.innerHTML="";lastSuspiciousCount=items.length;panel.classList.toggle("visible",items.length>0);for(const i of items){const d=document.createElement("div");d.className="item";const l=document.createElement("span");l.className="location";l.textContent=`第 ${i.line} 行 · Entropy ${i.entropy.toFixed(2)}`;const v=document.createElement("span");v.textContent=i.value.length>18?i.value.slice(0,8)+"…"+i.value.slice(-6):i.value;d.append(l,v);list.appendChild(d)}};
+    const processInput=(show=true)=>{updateCounter();if(!input.value){output.value="";matchCounter.textContent="尚未偵測";lastMatchCount=0;renderSuspicious([]);if(show)setStatus();return}const r=sanitize(input.value);output.value=r.text;lastMatchCount=r.matches;renderSuspicious(r.suspicious);if(r.matches&& !r.suspicious.length){matchCounter.textContent=`已遮蔽 ${r.matches} 筆`;if(show)setStatus(`已偵測並遮蔽 ${r.matches} 筆機密資料。`,"success")}else if(r.matches&&r.suspicious.length){matchCounter.textContent=`遮蔽 ${r.matches} · 警告 ${r.suspicious.length}`;if(show)setStatus(`已遮蔽 ${r.matches} 筆；另有 ${r.suspicious.length} 筆疑似機密資料需要人工確認。`,"warning")}else if(r.suspicious.length){matchCounter.textContent=`⚠️ 疑似 ${r.suspicious.length} 筆`;if(show)setStatus(`沒有命中明確機密欄位，但發現 ${r.suspicious.length} 筆高風險字串。`,"warning")}else{matchCounter.textContent="未偵測到機密資料";if(show)setStatus("目前沒有偵測到明確或疑似的機密資料。","success")}};
+    input.addEventListener("input",()=>{updateCounter();if(auto.checked)processInput(false)});$("sanitizeButton").onclick=()=>processInput(true);$("clearButton").onclick=()=>{input.value="";output.value="";updateCounter();matchCounter.textContent="尚未偵測";renderSuspicious([]);setStatus();input.focus()};$("replaceButton").onclick=()=>{processInput(false);if(!output.value)return setStatus("目前沒有內容可取代。","warning");input.value=output.value;processInput(false);setStatus("原始內容已替換成遮蔽後版本。","success")};$("selectButton").onclick=()=>{if(!output.value)return setStatus("目前沒有內容可以全選。","warning");output.focus();output.select();setStatus("已全選處理後內容。","success")};$("copyButton").onclick=async()=>{if(!input.value)return setStatus("目前沒有可複製的內容。","warning");processInput(false);try{await navigator.clipboard.writeText(output.value);setStatus(lastSuspiciousCount?`已複製，但仍有 ${lastSuspiciousCount} 筆黃色警告項目沒有自動修改。`:lastMatchCount?`已複製。共遮蔽 ${lastMatchCount} 筆機密資料。`:"已複製。沒有偵測到已知或疑似機密資料。",lastSuspiciousCount?"warning":"success")}catch{output.focus();output.select();setStatus("瀏覽器無法直接寫入剪貼簿，已幫你全選，請手動複製。","warning")}};$("pasteButton").onclick=async()=>{try{input.value=await navigator.clipboard.readText();processInput(true)}catch{input.focus();setStatus("瀏覽器沒有允許讀取剪貼簿，請長按輸入框後手動貼上。","warning")}};[maskUrls,detect,aggressive].forEach(x=>x.addEventListener("change",()=>{if(input.value)processInput(false)}));auto.addEventListener("change",()=>{if(auto.checked&&input.value)processInput(false)});window.addEventListener("pageshow",e=>{if(e.persisted){input.value="";output.value="";updateCounter();matchCounter.textContent="尚未偵測";renderSuspicious([]);setStatus()}});updateCounter();
+  })();
+  </script>
+</body>
+</html>
